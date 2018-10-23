@@ -1,0 +1,10 @@
+[user]
+	email = jdavis-cooke@indigoag.com
+	name = Jason Davis-Cooke
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[alias]
+	fixup   = !git commit -a --fixup=HEAD && git rebase -i HEAD~2 --autosquash
