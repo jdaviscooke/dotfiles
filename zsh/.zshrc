@@ -35,7 +35,7 @@ SPACESHIP_EXIT_CODE_SHOW=true
 # ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
- COMPLETION_WAITING_DOTS="true"
+COMPLETION_WAITING_DOTS="true"
 
 # Uncomment the following line if you want to disable marking untracked files
 # under VCS as dirty. This makes repository status check for large repositories
@@ -86,8 +86,7 @@ source $ZSH/oh-my-zsh.sh
 #
 # Example aliases
 
-
-export PATH="$PATH:$HOME/.rvm/bin:$HOME/.cargo/bin:/$HOME/go/bin" 
+export PATH="$PATH:$HOME/.rvm/bin:$HOME/.cargo/bin:/$HOME/go/bin"
 alias code="/Applications/Visual\ Studio\ Code\ -\ Insiders.app/Contents/Resources/app/bin/code"
 export EDITOR="/Applications/Visual\ Studio\ Code\ -\ Insiders.app/Contents/Resources/app/bin/code"
 alias zshconfig="code ~/.zshrc"
@@ -98,44 +97,64 @@ export PATH=$PATH:/usr/local/Cellar/node/0.12.0/libexec/npm/bin/
 alias ghist="git log --all --decorate --oneline --graph"
 alias gh="git log --all --decorate --oneline --graph"
 alias gitupdate="ls $HOME/indigo | xargs -I % -n 5 sh -c 'cd % && pwd && git stash || true && git checkout develop || true && git pull || true'"
+alias gcob="gco -b"
 
-alias ls="colorls"
+alias ls="exa"
 alias lc='colorls -aA --sd'
-alias ll='colorls -lA --gs --sd'
-
+alias ll='exa -lah --git --group-directories-first'
+alias lsd='ls -lT --git-ignore'
 
 # place this after nvm initialization!
 autoload -U add-zsh-hook
 load-nvmrc() {
-  local node_version="$(nvm version)"
-  local nvmrc_path="$(nvm_find_nvmrc)"
+	local node_version="$(nvm version)"
+	local nvmrc_path="$(nvm_find_nvmrc)"
 
-  if [ -n "$nvmrc_path" ]; then
-    local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
+	if [ -n "$nvmrc_path" ]; then
+		local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
 
-    if [ "$nvmrc_node_version" = "N/A" ]; then
-      nvm install
-      npm install -g yarn
-    elif [ "$nvmrc_node_version" != "$node_version" ]; then
-      nvm use
-      npm install -g yarn
-    fi
-  elif [ "$node_version" != "$(nvm version default)" ]; then
-    echo "Reverting to nvm default version"
-    nvm use default
-  fi
-  
+		if [ "$nvmrc_node_version" = "N/A" ]; then
+			nvm install
+			npm install -g yarn
+		elif [ "$nvmrc_node_version" != "$node_version" ]; then
+			nvm use
+			npm install -g yarn
+		fi
+	elif [ "$node_version" != "$(nvm version default)" ]; then
+		echo "Reverting to nvm default version"
+		nvm use default
+	fi
+
 }
-
 
 fo() {
-  local files
-  IFS=$'\n' files=($(fzf-tmux --query="$1" --multi --select-1 --exit-0))
-  [[ -n "$files" ]] && code "${files[@]}"
+	local files
+	IFS=$'\n' files=($(fzf-tmux --query="$1" --multi --select-1 --exit-0))
+	[[ -n "$files" ]] && code "${files[@]}"
 }
 
+get_spotify_track() {
+	if [ ! -d /Applications/Spotify.app ] && [ ! -d $HOME/Applications/Spotify.app ]; then
+		echo "The Spotify application must be installed."
+		exit 1
+	fi
+
+	TRACK=$(osascript -e 'tell application "Spotify" to name of current track as string')
+
+	if [ $? -ne 0 ]; then
+		echo "¯\_(ツ)_/¯"
+		exit 0
+	fi
+
+	echo $TRACK
+}
 
 add-zsh-hook chpwd load-nvmrc
 load-nvmrc
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+if which pyenv >/dev/null; then eval "$(pyenv init -)"; fi
+if which pyenv >/dev/null; then eval "$(pyenv virtualenv-init -)"; fi
